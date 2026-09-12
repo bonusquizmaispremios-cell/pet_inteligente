@@ -136,6 +136,25 @@ elif st.session_state.etapa == "App":
     
     (_tab_home, _tab_pets, _tab_saude, _tab_alimentacao, _tab_comportamento, _tab_emergencia, _tab_agenda, _tab_peso, _tab_chat, _tab_higiene, _tab_Mais) = st.tabs(['🏠 Home', '🐾 Meus Pets', '🩺 Saúde', '🍖 Alimentação', '🧠 Comportamento', '🚨 Emergência', '📅 Agenda', '⚖️ Peso', '🤖 Converse com IA', '🧼 Higiene', '➕ Mais'])
 
+    # ── BARRA SALVAR — visível em todas as abas ──
+    with st.expander("💾 Salvar / Carregar meus dados", expanded=False):
+        _bsc1, _bsc2 = st.columns(2)
+        with _bsc1:
+            _dsv = {k: st.session_state.get(k) for k in list(st.session_state.keys()) if not k.startswith('_') and k != 'api_key'}
+            st.download_button("💾 Baixar meus dados (.json)",
+                data=json.dumps(_dsv, ensure_ascii=False, indent=2, default=str),
+                file_name=f"pet_inteligente_{st.session_state.get('usuario','user')}.json",
+                mime="application/json", key="dl_barra_sv_pet")
+        with _bsc2:
+            _fupsv = st.file_uploader("📂 Carregar dados salvos:", type=["json"], key="ul_barra_sv_pet", label_visibility="collapsed")
+            if _fupsv:
+                try:
+                    for _k2, _v2 in json.loads(_fupsv.read().decode()).items():
+                        if _k2 not in ('api_key','etapa'): st.session_state[_k2] = _v2
+                    st.success("✅ Dados restaurados!"); st.rerun()
+                except: st.error("Arquivo inválido.")
+
+
     with _tab_home:
         st.title(f"🐾 Olá, {st.session_state.usuario}!")
         st.markdown("*Seu assistente pessoal para cuidar de qualquer animal de estimação.*")
