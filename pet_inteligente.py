@@ -133,37 +133,9 @@ if st.session_state.etapa == "Login":
 elif st.session_state.etapa == "App":
 
     # TABS
-    (_tab_home, _tab_pets, _tab_saude, _tab_vacinas, _tab_prevencao,
-     _tab_alimentacao, _tab_comportamento, _tab_atividades, _tab_higiene,
-     _tab_peso, _tab_agenda, _tab_emergencia, _tab_ambiente,
-     _tab_viagem, _tab_chat, _tab_profissionais) = st.tabs([
-        "🏠 Home", "🐾 Meus Pets", "🩺 Saúde", "💉 Vacinas", "🪱 Prevenção",
-        "🍖 Alimentação", "🐾 Comportamento", "🏃 Atividades", "🧼 Higiene",
-        "⚖️ Peso", "📅 Agenda", "🚨 Emergência", "🏡 Ambiente Seguro",
-        "🧳 Viagens", "🤖 Converse com a IA", "🏥 Profissionais"
-    ])
+    
+    (_tab_home, _tab_pets, _tab_saude, _tab_alimentacao, _tab_comportamento, _tab_emergencia, _tab_agenda, _tab_peso, _tab_chat, _tab_higiene, _tab_Mais) = st.tabs(['🏠 Home', '🐾 Meus Pets', '🩺 Saúde', '🍖 Alimentação', '🧠 Comportamento', '🚨 Emergência', '📅 Agenda', '⚖️ Peso', '🤖 Converse com IA', '🧼 Higiene', '➕ Mais'])
 
-    # ── BARRA SALVAR ──
-    with st.expander("💾 Salvar / Carregar meus dados", expanded=False):
-        _bsc1, _bsc2 = st.columns(2)
-        with _bsc1:
-            _dsv = {k: st.session_state.get(k) for k in list(st.session_state.keys()) if not k.startswith('_') and k != 'api_key'}
-            st.download_button("💾 Baixar meus dados (.json)",
-                data=json.dumps(_dsv, ensure_ascii=False, indent=2, default=str),
-                file_name=f"pet_inteligente_{st.session_state.get('usuario','user')}.json",
-                mime="application/json", key="dl_barra_sv_pet")
-        with _bsc2:
-            _fupsv = st.file_uploader("📂 Carregar dados salvos:", type=["json"], key="ul_barra_sv_pet", label_visibility="collapsed")
-            if _fupsv:
-                try:
-                    for _k2, _v2 in json.loads(_fupsv.read().decode()).items():
-                        if _k2 not in ('api_key','etapa'): st.session_state[_k2] = _v2
-                    st.success("✅ Dados restaurados!"); st.rerun()
-                except: st.error("Arquivo inválido.")
-
-    # ══════════════════════════════════════════════
-    # 🏠 HOME
-    # ══════════════════════════════════════════════
     with _tab_home:
         st.title(f"🐾 Olá, {st.session_state.usuario}!")
         st.markdown("*Seu assistente pessoal para cuidar de qualquer animal de estimação.*")
@@ -209,9 +181,10 @@ elif st.session_state.etapa == "App":
         for ic, nm, desc in guia:
             st.markdown(f"**{ic} {nm}** — {desc}")
 
-    # ══════════════════════════════════════════════
-    # 🐾 MEUS PETS
-    # ══════════════════════════════════════════════
+        # ══════════════════════════════════════════════
+        # 🐾 MEUS PETS
+        # ══════════════════════════════════════════════
+
     with _tab_pets:
         st.header("🐾 Meus Pets")
         pets = st.session_state.get('pets', [])
@@ -287,9 +260,10 @@ elif st.session_state.etapa == "App":
                 else:
                     st.warning("Digite o nome do pet.")
 
-    # ══════════════════════════════════════════════
-    # 🩺 SAÚDE
-    # ══════════════════════════════════════════════
+        # ══════════════════════════════════════════════
+        # 🩺 SAÚDE
+        # ══════════════════════════════════════════════
+
     with _tab_saude:
         st.header("🩺 Central de Saúde Animal")
         pet = get_pet_ativo()
@@ -344,103 +318,10 @@ elif st.session_state.etapa == "App":
                 else:
                     st.info("Nenhum registro de saúde ainda.")
 
-    # ══════════════════════════════════════════════
-    # 💉 VACINAS
-    # ══════════════════════════════════════════════
-    with _tab_vacinas:
-        st.header("💉 Vacinas e Prevenção")
-        pet = get_pet_ativo()
-        if not pet:
-            st.warning("Cadastre e selecione um pet primeiro.")
-        else:
-            st.markdown(f"<div class='badge'>{pet.get('especie','')} {pet.get('nome','?')}</div>", unsafe_allow_html=True)
-            st.markdown("")
-            _v1, _v2, _v3 = st.tabs(["📅 Calendário","💉 Registrar Vacina","🤖 Orientação IA"])
+        # ══════════════════════════════════════════════
+        # 💉 VACINAS
+        # ══════════════════════════════════════════════
 
-            with _v1:
-                st.markdown("### 📅 Calendário de Vacinação")
-                vacinas = [v for v in st.session_state.hist_vacinas if v.get('pet') == pet.get('nome')]
-                if vacinas:
-                    for v in reversed(vacinas):
-                        st.markdown(f"<div class='hist-item'><b>💉 {v.get('vacina','?')}</b> — {v.get('data','?')}<br><small>Próxima: {v.get('proxima','?')} | Vet: {v.get('vet','?')}</small></div>", unsafe_allow_html=True)
-                else:
-                    st.info("Nenhuma vacina registrada ainda.")
-
-            with _v2:
-                st.markdown("### 💉 Registrar Nova Vacina")
-                c1, c2 = st.columns(2)
-                with c1:
-                    vac_nome = st.text_input("Nome da vacina:", key="vac_nome", placeholder="Ex: V10, Antirrábica, Gripe felina...")
-                    vac_data = st.text_input("Data de aplicação:", value=datetime.now().strftime("%d/%m/%Y"), key="vac_data")
-                with c2:
-                    vac_prox = st.text_input("Próxima dose (data):", key="vac_prox", placeholder="Ex: 10/01/2026")
-                    vac_vet = st.text_input("Veterinário/Clínica:", key="vac_vet")
-                vac_obs = st.text_input("Observações:", key="vac_obs", placeholder="Ex: Sem reações adversas")
-                if st.button("💾 REGISTRAR VACINA", key="btn_reg_vac", use_container_width=True):
-                    if vac_nome.strip():
-                        st.session_state.hist_vacinas.append({"pet": pet.get('nome'), "vacina": vac_nome, "data": vac_data, "proxima": vac_prox, "vet": vac_vet, "obs": vac_obs})
-                        st.success("✅ Vacina registrada!"); st.rerun()
-                    else:
-                        st.warning("Informe o nome da vacina.")
-
-            with _v3:
-                st.markdown("### 🤖 Orientação sobre Vacinação")
-                duvida_vac = st.text_area("Sua dúvida sobre vacinação:", height=100, key="duvida_vac",
-                    placeholder="Ex: Quais vacinas são necessárias para meu pet? Já está atrasada?")
-                if st.button("🤖 CONSULTAR IA", key="btn_ia_vac", use_container_width=True):
-                    if duvida_vac.strip():
-                        with st.spinner("Consultando..."):
-                            resp = ia(duvida_vac, f"PERFIL DO PET: {perfil_pet_txt()}\n\nOriente sobre vacinação para esta espécie específica. Lembre que protocolos variam conforme espécie, local e estilo de vida. Sempre recomende orientação veterinária.")
-                        st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
-                    else:
-                        st.warning("Digite sua dúvida.")
-
-    # ══════════════════════════════════════════════
-    # 🪱 PREVENÇÃO
-    # ══════════════════════════════════════════════
-    with _tab_prevencao:
-        st.header("🪱 Parasitas e Controle Preventivo")
-        pet = get_pet_ativo()
-        if not pet:
-            st.warning("Cadastre e selecione um pet primeiro.")
-        else:
-            st.markdown(f"<div class='badge'>{pet.get('especie','')} {pet.get('nome','?')}</div>", unsafe_allow_html=True)
-            st.markdown("")
-            _p1, _p2 = st.tabs(["📋 Registros","🤖 Orientação IA"])
-
-            with _p1:
-                c1, c2 = st.columns(2)
-                with c1:
-                    prev_tipo = st.selectbox("Tipo:", ["Vermifugação","Antipulgas","Anticarrapatos","Parasita interno","Parasita externo","Cuidado ambiental","Outro"], key="prev_tipo")
-                    prev_data = st.text_input("Data:", value=datetime.now().strftime("%d/%m/%Y"), key="prev_data")
-                with c2:
-                    prev_prod = st.text_input("Produto utilizado:", key="prev_prod", placeholder="Ex: Bravecto, Milbemax...")
-                    prev_prox = st.text_input("Próxima aplicação:", key="prev_prox")
-                prev_obs = st.text_input("Observações:", key="prev_obs")
-                if st.button("💾 REGISTRAR", key="btn_prev_reg", use_container_width=True):
-                    if prev_prod.strip():
-                        st.session_state.hist_prevencao.append({"pet": pet.get('nome'), "tipo": prev_tipo, "data": prev_data, "produto": prev_prod, "proxima": prev_prox, "obs": prev_obs})
-                        st.success("✅ Registrado!"); st.rerun()
-                prev_list = [p for p in st.session_state.hist_prevencao if p.get('pet') == pet.get('nome')]
-                if prev_list:
-                    st.markdown("### 📋 Histórico")
-                    for p in reversed(prev_list[-10:]):
-                        st.markdown(f"<div class='hist-item'><b>🪱 {p.get('tipo','?')}</b> — {p.get('data','?')}<br><small>{p.get('produto','?')} | Próxima: {p.get('proxima','?')}</small></div>", unsafe_allow_html=True)
-
-            with _p2:
-                duvida_prev = st.text_area("Sua dúvida sobre prevenção:", height=100, key="duvida_prev",
-                    placeholder="Ex: Com que frequência devo vermifugar? Qual produto usar para pulgas?")
-                if st.button("🤖 CONSULTAR IA", key="btn_ia_prev", use_container_width=True):
-                    if duvida_prev.strip():
-                        with st.spinner("Consultando..."):
-                            resp = ia(duvida_prev, f"PERFIL DO PET: {perfil_pet_txt()}\n\nOriente sobre controle preventivo de parasitas para esta espécie. Adapte as recomendações conforme o tipo de animal.")
-                        st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
-                    else:
-                        st.warning("Digite sua dúvida.")
-
-    # ══════════════════════════════════════════════
-    # 🍖 ALIMENTAÇÃO
-    # ══════════════════════════════════════════════
     with _tab_alimentacao:
         st.header("🍖 Alimentação Inteligente")
         pet = get_pet_ativo()
@@ -488,9 +369,10 @@ elif st.session_state.etapa == "App":
                     else:
                         st.warning("Digite a substância.")
 
-    # ══════════════════════════════════════════════
-    # 🐾 COMPORTAMENTO
-    # ══════════════════════════════════════════════
+        # ══════════════════════════════════════════════
+        # 🐾 COMPORTAMENTO
+        # ══════════════════════════════════════════════
+
     with _tab_comportamento:
         st.header("🐾 Comportamento Animal")
         pet = get_pet_ativo()
@@ -529,152 +411,10 @@ elif st.session_state.etapa == "App":
                     else:
                         st.warning("Digite sua pergunta.")
 
-    # ══════════════════════════════════════════════
-    # 🏃 ATIVIDADES
-    # ══════════════════════════════════════════════
-    with _tab_atividades:
-        st.header("🏃 Atividades e Enriquecimento")
-        pet = get_pet_ativo()
-        if not pet:
-            st.warning("Cadastre e selecione um pet primeiro.")
-        else:
-            st.markdown(f"<div class='badge'>{pet.get('especie','')} {pet.get('nome','?')}</div>", unsafe_allow_html=True)
-            st.markdown("")
-            ativ_ctx = st.text_area("Contexto atual (opcional):", height=80, key="ativ_ctx",
-                placeholder="Ex: Vive em apartamento, fica sozinho 8h por dia, tem quintal...")
-            ativ_objetivo = st.selectbox("Objetivo:", ["Sugestão de atividades diárias","Enriquecimento ambiental","Reduzir ansiedade","Estimular inteligência","Socialização","Atividade física","Outro"], key="ativ_obj")
-            if st.button("🏃 GERAR SUGESTÕES", key="btn_ativ", use_container_width=True):
-                with st.spinner("Gerando sugestões..."):
-                    resp = ia(f"Objetivo: {ativ_objetivo}. Contexto: {ativ_ctx}",
-                             f"PERFIL DO PET: {perfil_pet_txt()}\n\nSugira atividades e enriquecimento ambiental ESPECÍFICOS para {pet.get('especie','')}. Não sugira caminhada para peixe ou gaiola para cachorro — adapte completamente à espécie. Seja prático e detalhado.")
-                st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
+        # ══════════════════════════════════════════════
+        # 🏃 ATIVIDADES
+        # ══════════════════════════════════════════════
 
-    # ══════════════════════════════════════════════
-    # 🧼 HIGIENE
-    # ══════════════════════════════════════════════
-    with _tab_higiene:
-        st.header("🧼 Higiene e Cuidados")
-        pet = get_pet_ativo()
-        if not pet:
-            st.warning("Cadastre e selecione um pet primeiro.")
-        else:
-            st.markdown(f"<div class='badge'>{pet.get('especie','')} {pet.get('nome','?')}</div>", unsafe_allow_html=True)
-            st.markdown("")
-            _h1, _h2 = st.tabs(["📋 Registrar Cuidado","🤖 Orientação IA"])
-
-            with _h1:
-                c1, c2 = st.columns(2)
-                with c1:
-                    hig_tipo = st.selectbox("Tipo de cuidado:", ["Banho","Escovação","Corte de unhas","Higiene bucal","Limpeza de orelhas","Cuidados com pelos","Limpeza de gaiola/aquário","Higienização do ambiente","Outro"], key="hig_tipo")
-                    hig_data = st.text_input("Data:", value=datetime.now().strftime("%d/%m/%Y"), key="hig_data")
-                with c2:
-                    hig_prox = st.text_input("Próximo cuidado:", key="hig_prox", placeholder="Ex: Em 15 dias, 30/01/2026...")
-                    hig_local = st.text_input("Local (pet shop, em casa):", key="hig_local")
-                hig_obs = st.text_area("Observações:", height=60, key="hig_obs")
-                if st.button("💾 REGISTRAR", key="btn_hig_reg", use_container_width=True):
-                    st.session_state.hist_higiene.append({"pet": pet.get('nome'), "tipo": hig_tipo, "data": hig_data, "proxima": hig_prox, "local": hig_local, "obs": hig_obs})
-                    st.success("✅ Registrado!"); st.rerun()
-
-                registros_hig = [h for h in st.session_state.hist_higiene if h.get('pet') == pet.get('nome')]
-                if registros_hig:
-                    st.markdown("### 📋 Últimos registros")
-                    for h in reversed(registros_hig[-8:]):
-                        st.markdown(f"<div class='hist-item'><b>🧼 {h.get('tipo','?')}</b> — {h.get('data','?')}<br><small>Próximo: {h.get('proxima','?')} | {h.get('local','')}</small></div>", unsafe_allow_html=True)
-
-            with _h2:
-                duvida_hig = st.text_area("Sua dúvida sobre higiene:", height=100, key="duvida_hig",
-                    placeholder="Ex: Com que frequência devo dar banho? Como limpar os dentes do meu gato?")
-                if st.button("🤖 CONSULTAR IA", key="btn_ia_hig", use_container_width=True):
-                    if duvida_hig.strip():
-                        with st.spinner("Consultando..."):
-                            resp = ia(duvida_hig, f"PERFIL DO PET: {perfil_pet_txt()}\n\nOriente sobre higiene ESPECIFICAMENTE para {pet.get('especie','')}. As rotinas de higiene variam muito entre espécies.")
-                        st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
-                    else:
-                        st.warning("Digite sua dúvida.")
-
-    # ══════════════════════════════════════════════
-    # ⚖️ PESO E DESENVOLVIMENTO
-    # ══════════════════════════════════════════════
-    with _tab_peso:
-        st.header("⚖️ Controle de Peso e Desenvolvimento")
-        pet = get_pet_ativo()
-        if not pet:
-            st.warning("Cadastre e selecione um pet primeiro.")
-        else:
-            st.markdown(f"<div class='badge'>{pet.get('especie','')} {pet.get('nome','?')}</div>", unsafe_allow_html=True)
-            st.markdown("")
-            c1, c2, c3 = st.columns(3)
-            with c1: peso_novo = st.text_input("Peso atual (kg):", key="peso_novo", placeholder="Ex: 5.2")
-            with c2: data_peso = st.text_input("Data:", value=datetime.now().strftime("%d/%m/%Y"), key="data_peso")
-            with c3: obs_peso = st.text_input("Observação:", key="obs_peso", placeholder="Ex: Pós-castração")
-            if st.button("💾 REGISTRAR PESO", key="btn_peso_reg", use_container_width=True):
-                if peso_novo.strip():
-                    st.session_state.hist_peso.append({"pet": pet.get('nome'), "peso": peso_novo, "data": data_peso, "obs": obs_peso})
-                    # Atualizar peso no cadastro
-                    idx = st.session_state.get('pet_ativo', 0)
-                    if idx < len(st.session_state.pets):
-                        st.session_state.pets[idx]['peso'] = peso_novo
-                    st.success("✅ Peso registrado!"); st.rerun()
-
-            pesos_pet = [p for p in st.session_state.hist_peso if p.get('pet') == pet.get('nome')]
-            if pesos_pet:
-                st.markdown("### 📊 Evolução de Peso")
-                for p in reversed(pesos_pet[-10:]):
-                    st.markdown(f"<div class='hist-item'>📅 {p.get('data','?')} — <b>{p.get('peso','?')} kg</b> {' — '+p.get('obs','') if p.get('obs') else ''}</div>", unsafe_allow_html=True)
-
-                st.markdown("<hr class='divider'>", unsafe_allow_html=True)
-                duvida_peso = st.text_area("Dúvida sobre peso ou desenvolvimento:", height=80, key="duvida_peso",
-                    placeholder="Ex: Meu pet está no peso ideal? Está crescendo adequadamente?")
-                if st.button("🤖 CONSULTAR IA", key="btn_ia_peso", use_container_width=True):
-                    if duvida_peso.strip():
-                        hist_str = " | ".join(f"{p['data']}: {p['peso']}kg" for p in pesos_pet[-5:])
-                        with st.spinner("Analisando..."):
-                            resp = ia(f"{duvida_peso}. Histórico de peso: {hist_str}",
-                                     f"PERFIL DO PET: {perfil_pet_txt()}\n\nAnalise o desenvolvimento e peso considerando {pet.get('especie','')}. Padrões de peso variam enormemente entre espécies.")
-                        st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
-                    else:
-                        st.warning("Digite sua dúvida.")
-
-    # ══════════════════════════════════════════════
-    # 📅 AGENDA
-    # ══════════════════════════════════════════════
-    with _tab_agenda:
-        st.header("📅 Agenda Inteligente")
-        pet = get_pet_ativo()
-
-        _ag1, _ag2 = st.tabs(["📋 Minha Agenda","➕ Adicionar Evento"])
-
-        with _ag1:
-            agenda = st.session_state.get('hist_agenda', [])
-            if agenda:
-                st.markdown("### 📅 Próximos compromissos")
-                for ev in agenda:
-                    emoji_ev = {"Vacina":"💉","Consulta":"🏥","Exame":"🧪","Higiene":"🧼","Medicamento":"💊","Higiene":"🧼","Pesagem":"⚖️","Limpeza":"🧹","Aniversário":"🎂"}.get(ev.get('tipo',''),"📅")
-                    st.markdown(f"<div class='hist-item'>{emoji_ev} <b>{ev.get('data','?')}</b> — {ev.get('tipo','?')}: {ev.get('desc','?')} <span class='badge'>{ev.get('pet','?')}</span></div>", unsafe_allow_html=True)
-            else:
-                st.info("Nenhum evento na agenda. Adicione na aba ➕ Adicionar Evento.")
-
-        with _ag2:
-            st.markdown("### ➕ Adicionar Evento")
-            pets_nomes = [p.get('nome','?') for p in st.session_state.get('pets',[])]
-            c1, c2 = st.columns(2)
-            with c1:
-                ev_pet = st.selectbox("Pet:", pets_nomes if pets_nomes else ["Sem pets"], key="ev_pet")
-                ev_tipo = st.selectbox("Tipo:", ["Consulta","Vacina","Exame","Higiene","Medicamento","Pesagem","Limpeza","Aniversário","Outro"], key="ev_tipo")
-            with c2:
-                ev_data = st.text_input("Data:", key="ev_data", placeholder="Ex: 15/02/2026")
-                ev_hora = st.text_input("Hora (opcional):", key="ev_hora", placeholder="Ex: 14:00")
-            ev_desc = st.text_input("Descrição:", key="ev_desc", placeholder="Ex: Consulta de rotina com Dra. Ana")
-            if st.button("📅 ADICIONAR À AGENDA", key="btn_agenda_add", use_container_width=True):
-                if ev_data.strip() and ev_desc.strip():
-                    st.session_state.hist_agenda.append({"pet": ev_pet, "tipo": ev_tipo, "data": ev_data, "hora": ev_hora, "desc": ev_desc})
-                    st.success("✅ Evento adicionado!"); st.rerun()
-                else:
-                    st.warning("Preencha data e descrição.")
-
-    # ══════════════════════════════════════════════
-    # 🚨 EMERGÊNCIA
-    # ══════════════════════════════════════════════
     with _tab_emergencia:
         st.markdown("<div class='urgente'><h2>🚨 MEU ANIMAL ESTÁ EM PERIGO?</h2><p>Use esta área para situações urgentes. A IA fornece orientação inicial — mas em casos graves, procure atendimento veterinário IMEDIATAMENTE.</p></div>", unsafe_allow_html=True)
 
@@ -716,55 +456,92 @@ elif st.session_state.etapa == "App":
                                  f"PERFIL DO PET: {perf}\n\nOriente sobre {sit} de forma prática e segura para esta espécie. Primeiros cuidados, o que não fazer e quando ir ao veterinário.")
                     st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
 
-    # ══════════════════════════════════════════════
-    # 🏡 AMBIENTE SEGURO
-    # ══════════════════════════════════════════════
-    with _tab_ambiente:
-        st.header("🏡 Ambiente Seguro")
-        pet = get_pet_ativo()
-        if not pet:
-            st.warning("Cadastre e selecione um pet primeiro.")
-        else:
-            st.markdown(f"<div class='badge'>{pet.get('especie','')} {pet.get('nome','?')}</div>", unsafe_allow_html=True)
-            st.markdown("")
-            amb_ctx = st.text_area("Descreva seu ambiente:", height=80, key="amb_ctx",
-                placeholder="Ex: Apartamento no 5º andar, varanda sem grade, plantas em casa, quintal aberto...")
-            if st.button("🏡 GERAR CHECKLIST DE SEGURANÇA", key="btn_amb", use_container_width=True):
-                if amb_ctx.strip():
-                    with st.spinner("Gerando checklist..."):
-                        resp = ia(f"Ambiente: {amb_ctx}",
-                                 f"PERFIL DO PET: {perfil_pet_txt()}\n\nCrie um checklist de segurança ambiental ESPECÍFICO para {pet.get('especie','')} neste ambiente. Inclua riscos, plantas tóxicas para esta espécie, objetos perigosos e adaptações recomendadas.")
-                    st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
-                else:
-                    st.warning("Descreva seu ambiente.")
+        # ══════════════════════════════════════════════
+        # 🏡 AMBIENTE SEGURO
+        # ══════════════════════════════════════════════
 
-    # ══════════════════════════════════════════════
-    # 🧳 VIAGENS
-    # ══════════════════════════════════════════════
-    with _tab_viagem:
-        st.header("🧳 Viagens com Animais")
+    with _tab_agenda:
+        st.header("📅 Agenda Inteligente")
         pet = get_pet_ativo()
-        if not pet:
-            st.warning("Cadastre e selecione um pet primeiro.")
-        else:
-            st.markdown(f"<div class='badge'>{pet.get('especie','')} {pet.get('nome','?')}</div>", unsafe_allow_html=True)
-            st.markdown("")
+
+        _ag1, _ag2 = st.tabs(["📋 Minha Agenda","➕ Adicionar Evento"])
+
+        with _ag1:
+            agenda = st.session_state.get('hist_agenda', [])
+            if agenda:
+                st.markdown("### 📅 Próximos compromissos")
+                for ev in agenda:
+                    emoji_ev = {"Vacina":"💉","Consulta":"🏥","Exame":"🧪","Higiene":"🧼","Medicamento":"💊","Higiene":"🧼","Pesagem":"⚖️","Limpeza":"🧹","Aniversário":"🎂"}.get(ev.get('tipo',''),"📅")
+                    st.markdown(f"<div class='hist-item'>{emoji_ev} <b>{ev.get('data','?')}</b> — {ev.get('tipo','?')}: {ev.get('desc','?')} <span class='badge'>{ev.get('pet','?')}</span></div>", unsafe_allow_html=True)
+            else:
+                st.info("Nenhum evento na agenda. Adicione na aba ➕ Adicionar Evento.")
+
+        with _ag2:
+            st.markdown("### ➕ Adicionar Evento")
+            pets_nomes = [p.get('nome','?') for p in st.session_state.get('pets',[])]
             c1, c2 = st.columns(2)
             with c1:
-                viag_tipo = st.selectbox("Tipo de viagem:", ["Carro","Avião","Ônibus","Navio","Camping","Hotel","Curta (até 2h)","Longa (mais de 2h)"], key="viag_tipo")
-                viag_destino = st.text_input("Destino:", key="viag_dest", placeholder="Ex: Praia, interior, exterior...")
+                ev_pet = st.selectbox("Pet:", pets_nomes if pets_nomes else ["Sem pets"], key="ev_pet")
+                ev_tipo = st.selectbox("Tipo:", ["Consulta","Vacina","Exame","Higiene","Medicamento","Pesagem","Limpeza","Aniversário","Outro"], key="ev_tipo")
             with c2:
-                viag_duracao = st.text_input("Duração:", key="viag_dur", placeholder="Ex: 3 dias, 1 semana...")
-                viag_ctx = st.text_input("Contexto adicional:", key="viag_ctx", placeholder="Ex: Primeiro voo, pet ansioso...")
-            if st.button("🧳 GERAR GUIA DE VIAGEM", key="btn_viag", use_container_width=True):
-                with st.spinner("Preparando guia..."):
-                    resp = ia(f"Viagem de {viag_tipo} para {viag_destino}, duração {viag_duracao}. {viag_ctx}",
-                             f"PERFIL DO PET: {perfil_pet_txt()}\n\nCrie um guia completo de viagem para {pet.get('especie','')}. Inclua: checklist, transporte, documentação, alimentação, saúde, segurança e dicas específicas para esta espécie.")
-                st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
+                ev_data = st.text_input("Data:", key="ev_data", placeholder="Ex: 15/02/2026")
+                ev_hora = st.text_input("Hora (opcional):", key="ev_hora", placeholder="Ex: 14:00")
+            ev_desc = st.text_input("Descrição:", key="ev_desc", placeholder="Ex: Consulta de rotina com Dra. Ana")
+            if st.button("📅 ADICIONAR À AGENDA", key="btn_agenda_add", use_container_width=True):
+                if ev_data.strip() and ev_desc.strip():
+                    st.session_state.hist_agenda.append({"pet": ev_pet, "tipo": ev_tipo, "data": ev_data, "hora": ev_hora, "desc": ev_desc})
+                    st.success("✅ Evento adicionado!"); st.rerun()
+                else:
+                    st.warning("Preencha data e descrição.")
 
-    # ══════════════════════════════════════════════
-    # 🤖 CHAT COM IA
-    # ══════════════════════════════════════════════
+        # ══════════════════════════════════════════════
+        # 🚨 EMERGÊNCIA
+        # ══════════════════════════════════════════════
+
+    with _tab_peso:
+        st.header("⚖️ Controle de Peso e Desenvolvimento")
+        pet = get_pet_ativo()
+        if not pet:
+            st.warning("Cadastre e selecione um pet primeiro.")
+        else:
+            st.markdown(f"<div class='badge'>{pet.get('especie','')} {pet.get('nome','?')}</div>", unsafe_allow_html=True)
+            st.markdown("")
+            c1, c2, c3 = st.columns(3)
+            with c1: peso_novo = st.text_input("Peso atual (kg):", key="peso_novo", placeholder="Ex: 5.2")
+            with c2: data_peso = st.text_input("Data:", value=datetime.now().strftime("%d/%m/%Y"), key="data_peso")
+            with c3: obs_peso = st.text_input("Observação:", key="obs_peso", placeholder="Ex: Pós-castração")
+            if st.button("💾 REGISTRAR PESO", key="btn_peso_reg", use_container_width=True):
+                if peso_novo.strip():
+                    st.session_state.hist_peso.append({"pet": pet.get('nome'), "peso": peso_novo, "data": data_peso, "obs": obs_peso})
+                    # Atualizar peso no cadastro
+                    idx = st.session_state.get('pet_ativo', 0)
+                    if idx < len(st.session_state.pets):
+                        st.session_state.pets[idx]['peso'] = peso_novo
+                    st.success("✅ Peso registrado!"); st.rerun()
+
+            pesos_pet = [p for p in st.session_state.hist_peso if p.get('pet') == pet.get('nome')]
+            if pesos_pet:
+                st.markdown("### 📊 Evolução de Peso")
+                for p in reversed(pesos_pet[-10:]):
+                    st.markdown(f"<div class='hist-item'>📅 {p.get('data','?')} — <b>{p.get('peso','?')} kg</b> {' — '+p.get('obs','') if p.get('obs') else ''}</div>", unsafe_allow_html=True)
+
+                st.markdown("<hr class='divider'>", unsafe_allow_html=True)
+                duvida_peso = st.text_area("Dúvida sobre peso ou desenvolvimento:", height=80, key="duvida_peso",
+                    placeholder="Ex: Meu pet está no peso ideal? Está crescendo adequadamente?")
+                if st.button("🤖 CONSULTAR IA", key="btn_ia_peso", use_container_width=True):
+                    if duvida_peso.strip():
+                        hist_str = " | ".join(f"{p['data']}: {p['peso']}kg" for p in pesos_pet[-5:])
+                        with st.spinner("Analisando..."):
+                            resp = ia(f"{duvida_peso}. Histórico de peso: {hist_str}",
+                                     f"PERFIL DO PET: {perfil_pet_txt()}\n\nAnalise o desenvolvimento e peso considerando {pet.get('especie','')}. Padrões de peso variam enormemente entre espécies.")
+                        st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
+                    else:
+                        st.warning("Digite sua dúvida.")
+
+        # ══════════════════════════════════════════════
+        # 📅 AGENDA
+        # ══════════════════════════════════════════════
+
     with _tab_chat:
         st.header("🤖 Converse com o Pet Inteligente")
         pet = get_pet_ativo()
@@ -798,39 +575,256 @@ elif st.session_state.etapa == "App":
             if st.button("🗑️ Limpar", key="btn_chat_clear_pet"):
                 st.session_state.hist_chat = []; st.rerun()
 
-    # ══════════════════════════════════════════════
-    # 🏥 PROFISSIONAIS
-    # ══════════════════════════════════════════════
-    with _tab_profissionais:
-        st.header("🏥 Cadastro de Profissionais")
-        _pr1, _pr2 = st.tabs(["📋 Meus Profissionais","➕ Cadastrar"])
+        # ══════════════════════════════════════════════
+        # 🏥 PROFISSIONAIS
+        # ══════════════════════════════════════════════
 
-        with _pr1:
-            profs = st.session_state.get('profissionais', [])
-            if profs:
-                for p in profs:
-                    emoji_p = {"Veterinário":"🩺","Clínica":"🏥","Especialista":"👨‍⚕️","Adestrador":"🎓","Pet Shop":"🛍️","Banho e Tosa":"🧼","Hotel para animais":"🏨"}.get(p.get('tipo',''),"📋")
-                    st.markdown(f"<div class='pet-card'>{emoji_p} <b>{p.get('nome','?')}</b> <span class='badge'>{p.get('tipo','?')}</span><br><small>📞 {p.get('telefone','?')} | 📍 {p.get('endereco','?')}</small><br><small>🐾 Especialidade: {p.get('especialidade','?')}</small></div>", unsafe_allow_html=True)
+    with _tab_higiene:
+        st.header("🧼 Higiene e Cuidados")
+        pet = get_pet_ativo()
+        if not pet:
+            st.warning("Cadastre e selecione um pet primeiro.")
+        else:
+            st.markdown(f"<div class='badge'>{pet.get('especie','')} {pet.get('nome','?')}</div>", unsafe_allow_html=True)
+            st.markdown("")
+            _h1, _h2 = st.tabs(["📋 Registrar Cuidado","🤖 Orientação IA"])
+
+            with _h1:
+                c1, c2 = st.columns(2)
+                with c1:
+                    hig_tipo = st.selectbox("Tipo de cuidado:", ["Banho","Escovação","Corte de unhas","Higiene bucal","Limpeza de orelhas","Cuidados com pelos","Limpeza de gaiola/aquário","Higienização do ambiente","Outro"], key="hig_tipo")
+                    hig_data = st.text_input("Data:", value=datetime.now().strftime("%d/%m/%Y"), key="hig_data")
+                with c2:
+                    hig_prox = st.text_input("Próximo cuidado:", key="hig_prox", placeholder="Ex: Em 15 dias, 30/01/2026...")
+                    hig_local = st.text_input("Local (pet shop, em casa):", key="hig_local")
+                hig_obs = st.text_area("Observações:", height=60, key="hig_obs")
+                if st.button("💾 REGISTRAR", key="btn_hig_reg", use_container_width=True):
+                    st.session_state.hist_higiene.append({"pet": pet.get('nome'), "tipo": hig_tipo, "data": hig_data, "proxima": hig_prox, "local": hig_local, "obs": hig_obs})
+                    st.success("✅ Registrado!"); st.rerun()
+
+                registros_hig = [h for h in st.session_state.hist_higiene if h.get('pet') == pet.get('nome')]
+                if registros_hig:
+                    st.markdown("### 📋 Últimos registros")
+                    for h in reversed(registros_hig[-8:]):
+                        st.markdown(f"<div class='hist-item'><b>🧼 {h.get('tipo','?')}</b> — {h.get('data','?')}<br><small>Próximo: {h.get('proxima','?')} | {h.get('local','')}</small></div>", unsafe_allow_html=True)
+
+            with _h2:
+                duvida_hig = st.text_area("Sua dúvida sobre higiene:", height=100, key="duvida_hig",
+                    placeholder="Ex: Com que frequência devo dar banho? Como limpar os dentes do meu gato?")
+                if st.button("🤖 CONSULTAR IA", key="btn_ia_hig", use_container_width=True):
+                    if duvida_hig.strip():
+                        with st.spinner("Consultando..."):
+                            resp = ia(duvida_hig, f"PERFIL DO PET: {perfil_pet_txt()}\n\nOriente sobre higiene ESPECIFICAMENTE para {pet.get('especie','')}. As rotinas de higiene variam muito entre espécies.")
+                        st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
+                    else:
+                        st.warning("Digite sua dúvida.")
+
+        # ══════════════════════════════════════════════
+        # ⚖️ PESO E DESENVOLVIMENTO
+        # ══════════════════════════════════════════════
+
+    with _tab_Mais:
+        (_sm_vacinas, _sm_prevencao, _sm_atividades, _sm_ambiente, _sm_viagem, _sm_profissionais) = st.tabs(['💉 Vacinas', '🪱 Prevenção', '🏃 Atividades', '🏡 Ambiente', '🧳 Viagens', '🏥 Profissionais'])
+
+        with _sm_vacinas:
+            st.header("💉 Vacinas e Prevenção")
+            pet = get_pet_ativo()
+            if not pet:
+                st.warning("Cadastre e selecione um pet primeiro.")
             else:
-                st.info("Nenhum profissional cadastrado ainda.")
+                st.markdown(f"<div class='badge'>{pet.get('especie','')} {pet.get('nome','?')}</div>", unsafe_allow_html=True)
+                st.markdown("")
+                _v1, _v2, _v3 = st.tabs(["📅 Calendário","💉 Registrar Vacina","🤖 Orientação IA"])
 
-        with _pr2:
-            st.markdown("### ➕ Cadastrar Profissional")
-            c1, c2 = st.columns(2)
-            with c1:
-                prof_nome = st.text_input("Nome:", key="prof_nome", placeholder="Ex: Dr. Carlos Silva")
-                prof_tipo = st.selectbox("Tipo:", ["Veterinário","Clínica","Especialista","Adestrador","Pet Shop","Banho e Tosa","Hotel para animais","Outro"], key="prof_tipo")
-                prof_tel = st.text_input("Telefone:", key="prof_tel", placeholder="Ex: (11) 99999-9999")
-            with c2:
-                prof_end = st.text_input("Endereço:", key="prof_end")
-                prof_esp = st.text_input("Especialidade:", key="prof_esp", placeholder="Ex: Dermatologia felina, Animais exóticos...")
-                prof_obs = st.text_input("Observações:", key="prof_obs")
-            if st.button("💾 CADASTRAR PROFISSIONAL", key="btn_prof_cad", use_container_width=True):
-                if prof_nome.strip():
-                    st.session_state.profissionais.append({"nome": prof_nome, "tipo": prof_tipo, "telefone": prof_tel, "endereco": prof_end, "especialidade": prof_esp, "obs": prof_obs})
-                    st.success("✅ Profissional cadastrado!"); st.rerun()
+                with _v1:
+                    st.markdown("### 📅 Calendário de Vacinação")
+                    vacinas = [v for v in st.session_state.hist_vacinas if v.get('pet') == pet.get('nome')]
+                    if vacinas:
+                        for v in reversed(vacinas):
+                            st.markdown(f"<div class='hist-item'><b>💉 {v.get('vacina','?')}</b> — {v.get('data','?')}<br><small>Próxima: {v.get('proxima','?')} | Vet: {v.get('vet','?')}</small></div>", unsafe_allow_html=True)
+                    else:
+                        st.info("Nenhuma vacina registrada ainda.")
+
+                with _v2:
+                    st.markdown("### 💉 Registrar Nova Vacina")
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        vac_nome = st.text_input("Nome da vacina:", key="vac_nome", placeholder="Ex: V10, Antirrábica, Gripe felina...")
+                        vac_data = st.text_input("Data de aplicação:", value=datetime.now().strftime("%d/%m/%Y"), key="vac_data")
+                    with c2:
+                        vac_prox = st.text_input("Próxima dose (data):", key="vac_prox", placeholder="Ex: 10/01/2026")
+                        vac_vet = st.text_input("Veterinário/Clínica:", key="vac_vet")
+                    vac_obs = st.text_input("Observações:", key="vac_obs", placeholder="Ex: Sem reações adversas")
+                    if st.button("💾 REGISTRAR VACINA", key="btn_reg_vac", use_container_width=True):
+                        if vac_nome.strip():
+                            st.session_state.hist_vacinas.append({"pet": pet.get('nome'), "vacina": vac_nome, "data": vac_data, "proxima": vac_prox, "vet": vac_vet, "obs": vac_obs})
+                            st.success("✅ Vacina registrada!"); st.rerun()
+                        else:
+                            st.warning("Informe o nome da vacina.")
+
+                with _v3:
+                    st.markdown("### 🤖 Orientação sobre Vacinação")
+                    duvida_vac = st.text_area("Sua dúvida sobre vacinação:", height=100, key="duvida_vac",
+                        placeholder="Ex: Quais vacinas são necessárias para meu pet? Já está atrasada?")
+                    if st.button("🤖 CONSULTAR IA", key="btn_ia_vac", use_container_width=True):
+                        if duvida_vac.strip():
+                            with st.spinner("Consultando..."):
+                                resp = ia(duvida_vac, f"PERFIL DO PET: {perfil_pet_txt()}\n\nOriente sobre vacinação para esta espécie específica. Lembre que protocolos variam conforme espécie, local e estilo de vida. Sempre recomende orientação veterinária.")
+                            st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
+                        else:
+                            st.warning("Digite sua dúvida.")
+
+            # ══════════════════════════════════════════════
+            # 🪱 PREVENÇÃO
+            # ══════════════════════════════════════════════
+
+        with _sm_prevencao:
+            st.header("🪱 Parasitas e Controle Preventivo")
+            pet = get_pet_ativo()
+            if not pet:
+                st.warning("Cadastre e selecione um pet primeiro.")
+            else:
+                st.markdown(f"<div class='badge'>{pet.get('especie','')} {pet.get('nome','?')}</div>", unsafe_allow_html=True)
+                st.markdown("")
+                _p1, _p2 = st.tabs(["📋 Registros","🤖 Orientação IA"])
+
+                with _p1:
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        prev_tipo = st.selectbox("Tipo:", ["Vermifugação","Antipulgas","Anticarrapatos","Parasita interno","Parasita externo","Cuidado ambiental","Outro"], key="prev_tipo")
+                        prev_data = st.text_input("Data:", value=datetime.now().strftime("%d/%m/%Y"), key="prev_data")
+                    with c2:
+                        prev_prod = st.text_input("Produto utilizado:", key="prev_prod", placeholder="Ex: Bravecto, Milbemax...")
+                        prev_prox = st.text_input("Próxima aplicação:", key="prev_prox")
+                    prev_obs = st.text_input("Observações:", key="prev_obs")
+                    if st.button("💾 REGISTRAR", key="btn_prev_reg", use_container_width=True):
+                        if prev_prod.strip():
+                            st.session_state.hist_prevencao.append({"pet": pet.get('nome'), "tipo": prev_tipo, "data": prev_data, "produto": prev_prod, "proxima": prev_prox, "obs": prev_obs})
+                            st.success("✅ Registrado!"); st.rerun()
+                    prev_list = [p for p in st.session_state.hist_prevencao if p.get('pet') == pet.get('nome')]
+                    if prev_list:
+                        st.markdown("### 📋 Histórico")
+                        for p in reversed(prev_list[-10:]):
+                            st.markdown(f"<div class='hist-item'><b>🪱 {p.get('tipo','?')}</b> — {p.get('data','?')}<br><small>{p.get('produto','?')} | Próxima: {p.get('proxima','?')}</small></div>", unsafe_allow_html=True)
+
+                with _p2:
+                    duvida_prev = st.text_area("Sua dúvida sobre prevenção:", height=100, key="duvida_prev",
+                        placeholder="Ex: Com que frequência devo vermifugar? Qual produto usar para pulgas?")
+                    if st.button("🤖 CONSULTAR IA", key="btn_ia_prev", use_container_width=True):
+                        if duvida_prev.strip():
+                            with st.spinner("Consultando..."):
+                                resp = ia(duvida_prev, f"PERFIL DO PET: {perfil_pet_txt()}\n\nOriente sobre controle preventivo de parasitas para esta espécie. Adapte as recomendações conforme o tipo de animal.")
+                            st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
+                        else:
+                            st.warning("Digite sua dúvida.")
+
+            # ══════════════════════════════════════════════
+            # 🍖 ALIMENTAÇÃO
+            # ══════════════════════════════════════════════
+
+        with _sm_atividades:
+            st.header("🏃 Atividades e Enriquecimento")
+            pet = get_pet_ativo()
+            if not pet:
+                st.warning("Cadastre e selecione um pet primeiro.")
+            else:
+                st.markdown(f"<div class='badge'>{pet.get('especie','')} {pet.get('nome','?')}</div>", unsafe_allow_html=True)
+                st.markdown("")
+                ativ_ctx = st.text_area("Contexto atual (opcional):", height=80, key="ativ_ctx",
+                    placeholder="Ex: Vive em apartamento, fica sozinho 8h por dia, tem quintal...")
+                ativ_objetivo = st.selectbox("Objetivo:", ["Sugestão de atividades diárias","Enriquecimento ambiental","Reduzir ansiedade","Estimular inteligência","Socialização","Atividade física","Outro"], key="ativ_obj")
+                if st.button("🏃 GERAR SUGESTÕES", key="btn_ativ", use_container_width=True):
+                    with st.spinner("Gerando sugestões..."):
+                        resp = ia(f"Objetivo: {ativ_objetivo}. Contexto: {ativ_ctx}",
+                                 f"PERFIL DO PET: {perfil_pet_txt()}\n\nSugira atividades e enriquecimento ambiental ESPECÍFICOS para {pet.get('especie','')}. Não sugira caminhada para peixe ou gaiola para cachorro — adapte completamente à espécie. Seja prático e detalhado.")
+                    st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
+
+            # ══════════════════════════════════════════════
+            # 🧼 HIGIENE
+            # ══════════════════════════════════════════════
+
+        with _sm_ambiente:
+            st.header("🏡 Ambiente Seguro")
+            pet = get_pet_ativo()
+            if not pet:
+                st.warning("Cadastre e selecione um pet primeiro.")
+            else:
+                st.markdown(f"<div class='badge'>{pet.get('especie','')} {pet.get('nome','?')}</div>", unsafe_allow_html=True)
+                st.markdown("")
+                amb_ctx = st.text_area("Descreva seu ambiente:", height=80, key="amb_ctx",
+                    placeholder="Ex: Apartamento no 5º andar, varanda sem grade, plantas em casa, quintal aberto...")
+                if st.button("🏡 GERAR CHECKLIST DE SEGURANÇA", key="btn_amb", use_container_width=True):
+                    if amb_ctx.strip():
+                        with st.spinner("Gerando checklist..."):
+                            resp = ia(f"Ambiente: {amb_ctx}",
+                                     f"PERFIL DO PET: {perfil_pet_txt()}\n\nCrie um checklist de segurança ambiental ESPECÍFICO para {pet.get('especie','')} neste ambiente. Inclua riscos, plantas tóxicas para esta espécie, objetos perigosos e adaptações recomendadas.")
+                        st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
+                    else:
+                        st.warning("Descreva seu ambiente.")
+
+            # ══════════════════════════════════════════════
+            # 🧳 VIAGENS
+            # ══════════════════════════════════════════════
+
+        with _sm_viagem:
+            st.header("🧳 Viagens com Animais")
+            pet = get_pet_ativo()
+            if not pet:
+                st.warning("Cadastre e selecione um pet primeiro.")
+            else:
+                st.markdown(f"<div class='badge'>{pet.get('especie','')} {pet.get('nome','?')}</div>", unsafe_allow_html=True)
+                st.markdown("")
+                c1, c2 = st.columns(2)
+                with c1:
+                    viag_tipo = st.selectbox("Tipo de viagem:", ["Carro","Avião","Ônibus","Navio","Camping","Hotel","Curta (até 2h)","Longa (mais de 2h)"], key="viag_tipo")
+                    viag_destino = st.text_input("Destino:", key="viag_dest", placeholder="Ex: Praia, interior, exterior...")
+                with c2:
+                    viag_duracao = st.text_input("Duração:", key="viag_dur", placeholder="Ex: 3 dias, 1 semana...")
+                    viag_ctx = st.text_input("Contexto adicional:", key="viag_ctx", placeholder="Ex: Primeiro voo, pet ansioso...")
+                if st.button("🧳 GERAR GUIA DE VIAGEM", key="btn_viag", use_container_width=True):
+                    with st.spinner("Preparando guia..."):
+                        resp = ia(f"Viagem de {viag_tipo} para {viag_destino}, duração {viag_duracao}. {viag_ctx}",
+                                 f"PERFIL DO PET: {perfil_pet_txt()}\n\nCrie um guia completo de viagem para {pet.get('especie','')}. Inclua: checklist, transporte, documentação, alimentação, saúde, segurança e dicas específicas para esta espécie.")
+                    st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
+
+            # ══════════════════════════════════════════════
+            # 🤖 CHAT COM IA
+            # ══════════════════════════════════════════════
+
+        with _sm_profissionais:
+            st.header("🏥 Cadastro de Profissionais")
+            _pr1, _pr2 = st.tabs(["📋 Meus Profissionais","➕ Cadastrar"])
+
+            with _pr1:
+                profs = st.session_state.get('profissionais', [])
+                if profs:
+                    for p in profs:
+                        emoji_p = {"Veterinário":"🩺","Clínica":"🏥","Especialista":"👨‍⚕️","Adestrador":"🎓","Pet Shop":"🛍️","Banho e Tosa":"🧼","Hotel para animais":"🏨"}.get(p.get('tipo',''),"📋")
+                        st.markdown(f"<div class='pet-card'>{emoji_p} <b>{p.get('nome','?')}</b> <span class='badge'>{p.get('tipo','?')}</span><br><small>📞 {p.get('telefone','?')} | 📍 {p.get('endereco','?')}</small><br><small>🐾 Especialidade: {p.get('especialidade','?')}</small></div>", unsafe_allow_html=True)
                 else:
-                    st.warning("Informe o nome.")
+                    st.info("Nenhum profissional cadastrado ainda.")
+
+            with _pr2:
+                st.markdown("### ➕ Cadastrar Profissional")
+                c1, c2 = st.columns(2)
+                with c1:
+                    prof_nome = st.text_input("Nome:", key="prof_nome", placeholder="Ex: Dr. Carlos Silva")
+                    prof_tipo = st.selectbox("Tipo:", ["Veterinário","Clínica","Especialista","Adestrador","Pet Shop","Banho e Tosa","Hotel para animais","Outro"], key="prof_tipo")
+                    prof_tel = st.text_input("Telefone:", key="prof_tel", placeholder="Ex: (11) 99999-9999")
+                with c2:
+                    prof_end = st.text_input("Endereço:", key="prof_end")
+                    prof_esp = st.text_input("Especialidade:", key="prof_esp", placeholder="Ex: Dermatologia felina, Animais exóticos...")
+                    prof_obs = st.text_input("Observações:", key="prof_obs")
+                if st.button("💾 CADASTRAR PROFISSIONAL", key="btn_prof_cad", use_container_width=True):
+                    if prof_nome.strip():
+                        st.session_state.profissionais.append({"nome": prof_nome, "tipo": prof_tipo, "telefone": prof_tel, "endereco": prof_end, "especialidade": prof_esp, "obs": prof_obs})
+                        st.success("✅ Profissional cadastrado!"); st.rerun()
+                    else:
+                        st.warning("Informe o nome.")
+
+            # ── RODAPÉ ──
+            st.markdown("<hr class='divider'>", unsafe_allow_html=True)
+            st.markdown("<div style='text-align:center;font-size:0.75em;color:#94A3B8;'>© 2026 Pet Inteligente · Quiz Com Prêmios · <a href='https://quizcompremios.com.br' target='_blank' style='color:#4F46E5;'>quizcompremios.com.br</a></div>", unsafe_allow_html=True)
 
 # ── RODAPÉ ──
 st.markdown("<hr class='divider'>", unsafe_allow_html=True)
