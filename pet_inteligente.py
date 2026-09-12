@@ -219,46 +219,84 @@ elif st.session_state.etapa == "App":
                                 st.session_state.pets.pop(i); st.rerun()
 
         with _sub_cadastro:
-            st.markdown("### ➕ Cadastrar Novo Animal")
-            st.markdown("*Preencha os dados do seu pet. Quanto mais informações, mais personalizada será a IA.*")
+            # Tela de sucesso após cadastro
+            if st.session_state.get('pet_cadastrado_ok'):
+                pet_nome_ok = st.session_state.get('pet_cadastrado_nome','')
+                st.markdown(f"""
+                <div style='text-align:center;padding:40px 20px;'>
+                    <div style='font-size:4em;'>🐾</div>
+                    <h2 style='color:#065F46;'>Cadastro realizado!</h2>
+                    <p style='font-size:1.1em;color:#065F46;'><b>{pet_nome_ok}</b> foi cadastrado com sucesso.</p>
+                    <p style='color:#6B7280;'>Agora você pode usar todas as funcionalidades personalizadas para o seu pet.</p>
+                </div>
+                """, unsafe_allow_html=True)
+                if st.button("➕ Cadastrar outro pet", key="btn_cad_outro", use_container_width=True):
+                    st.session_state['pet_cadastrado_ok'] = False
+                    st.rerun()
+            else:
+                st.markdown("### ➕ Cadastrar Novo Animal")
+                st.markdown("*Preencha os dados do seu pet. Quanto mais informações, mais personalizada será a IA.*")
 
-            c1, c2 = st.columns(2)
-            with c1:
-                nome_pet = st.text_input("🏷️ Nome do pet:", key="cad_nome", placeholder="Ex: Thor, Mimi, Lola...")
-                especie_pet = st.selectbox("🐾 Espécie:", ESPECIES, key="cad_especie")
-                raca_pet = st.text_input("🔬 Raça/Variedade:", key="cad_raca", placeholder="Ex: Golden Retriever, SRD, Anão Holandês...")
-                sexo_pet = st.selectbox("⚥ Sexo:", ["Macho","Fêmea","Não identificado"], key="cad_sexo")
-                idade_pet = st.text_input("📅 Idade:", key="cad_idade", placeholder="Ex: 2 anos, 6 meses, filhote...")
-            with c2:
-                peso_pet = st.text_input("⚖️ Peso (kg):", key="cad_peso", placeholder="Ex: 5.2")
-                castrado_pet = st.selectbox("✂️ Castrado(a):", ["Sim","Não","Não aplicável","Não sei"], key="cad_castrado")
-                cor_pet = st.text_input("🎨 Cor/Pelagem:", key="cad_cor", placeholder="Ex: Caramelo, preto e branco...")
-                identificacao_pet = st.text_input("🔖 Identificação:", key="cad_id", placeholder="Ex: Microchip, coleira, tatuagem...")
+                # CSS para labels importantes
+                st.markdown("""
+                <style>
+                .label-imp { color:#DC2626; font-size:0.75em; font-weight:600; margin-top:-8px; margin-bottom:4px; }
+                .label-aviso { color:#B45309; font-size:0.75em; font-weight:600; margin-top:-8px; margin-bottom:4px; }
+                </style>
+                """, unsafe_allow_html=True)
 
-            saude_pet = st.text_area("🩺 Condições de saúde conhecidas:", key="cad_saude", height=80, placeholder="Ex: Displasia quadril, diabetes, saudável...")
-            alergias_pet = st.text_area("⚠️ Alergias:", key="cad_alergias", height=60, placeholder="Ex: Alergia a frango, sem alergias conhecidas...")
-            alimentacao_pet = st.text_area("🍖 Alimentação atual:", key="cad_alim", height=60, placeholder="Ex: Ração premium adulto, ração + vegetais frescos...")
-            medicamentos_pet = st.text_input("💊 Medicamentos prescritos:", key="cad_meds", placeholder="Ex: Nenhum, Thyrozol 5mg/dia...")
-            comportamento_pet = st.text_area("🧠 Características comportamentais:", key="cad_comp", height=60, placeholder="Ex: Dócil, ansioso, sociável com outros animais...")
-            obs_pet = st.text_area("📝 Observações adicionais:", key="cad_obs", height=60, placeholder="Outras informações importantes...")
+                c1, c2 = st.columns(2)
+                with c1:
+                    nome_pet = st.text_input("🏷️ Nome do pet:", key="cad_nome", placeholder="Ex: Thor, Mimi, Lola...")
+                    especie_pet = st.selectbox("🐾 Espécie:", ESPECIES, key="cad_especie")
+                    raca_pet = st.text_input("🔬 Raça/Variedade:", key="cad_raca", placeholder="Ex: Golden Retriever, SRD, Anão Holandês...")
+                    sexo_pet = st.selectbox("⚥ Sexo:", ["Macho","Fêmea","Não identificado"], key="cad_sexo")
+                    idade_pet = st.text_input("📅 Idade:", key="cad_idade", placeholder="Ex: 2 anos, 6 meses, filhote...")
+                with c2:
+                    peso_pet = st.text_input("⚖️ Peso (kg):", key="cad_peso", placeholder="Ex: 5.2")
+                    castrado_pet = st.selectbox("✂️ Castrado(a):", ["Sim","Não","Não aplicável","Não sei"], key="cad_castrado")
+                    cor_pet = st.text_input("🎨 Cor/Pelagem:", key="cad_cor", placeholder="Ex: Caramelo, preto e branco...")
+                    identificacao_pet = st.text_input("🔖 Identificação:", key="cad_id", placeholder="Ex: Microchip, coleira, tatuagem...")
 
-            if st.button("✅ CADASTRAR PET", key="btn_cadastrar_pet", use_container_width=True):
-                if nome_pet.strip():
-                    novo_pet = {
-                        "nome": nome_pet.strip(), "especie": especie_pet,
-                        "raca": raca_pet, "sexo": sexo_pet, "idade": idade_pet,
-                        "peso": peso_pet, "castrado": castrado_pet, "cor": cor_pet,
-                        "identificacao": identificacao_pet, "saude": saude_pet,
-                        "alergias": alergias_pet, "alimentacao": alimentacao_pet,
-                        "medicamentos": medicamentos_pet, "comportamento": comportamento_pet,
-                        "obs": obs_pet, "cadastrado_em": datetime.now().strftime("%d/%m/%Y")
-                    }
-                    if 'pets' not in st.session_state: st.session_state.pets = []
-                    st.session_state.pets.append(novo_pet)
-                    st.session_state.pet_ativo = len(st.session_state.pets) - 1
-                    st.success(f"✅ {nome_pet} cadastrado com sucesso!"); st.rerun()
-                else:
-                    st.warning("Digite o nome do pet.")
+                st.markdown("<div class='label-imp'>⚠️ Campo importante — preencha com atenção:</div>", unsafe_allow_html=True)
+                alergias_pet = st.text_area("⚠️ Alergias:", key="cad_alergias", height=60, placeholder="Ex: Alergia a frango, sem alergias conhecidas... (impacta todas as recomendações da IA)")
+
+                st.markdown("<div class='label-imp'>⚠️ Campo importante — preencha com atenção:</div>", unsafe_allow_html=True)
+                saude_pet = st.text_area("🩺 Condições de saúde conhecidas:", key="cad_saude", height=80, placeholder="Ex: Displasia quadril, diabetes, saudável... (a IA adapta orientações conforme este campo)")
+
+                st.markdown("<div class='label-imp'>⚠️ Campo importante — preencha com atenção:</div>", unsafe_allow_html=True)
+                medicamentos_pet = st.text_input("💊 Medicamentos prescritos:", key="cad_meds", placeholder="Ex: Nenhum, Thyrozol 5mg/dia... (essencial para recomendações seguras)")
+
+                st.markdown("<div class='label-aviso'>💡 Recomendado — ajuda a IA a personalizar melhor:</div>", unsafe_allow_html=True)
+                alimentacao_pet = st.text_area("🍖 Alimentação atual:", key="cad_alim", height=60, placeholder="Ex: Ração premium adulto, ração + vegetais frescos...")
+
+                st.markdown("<div class='label-aviso'>💡 Recomendado — ajuda a IA a personalizar melhor:</div>", unsafe_allow_html=True)
+                comportamento_pet = st.text_area("🧠 Características comportamentais:", key="cad_comp", height=60, placeholder="Ex: Dócil, ansioso, sociável com outros animais...")
+
+                obs_pet = st.text_area("📝 Observações adicionais:", key="cad_obs", height=60, placeholder="Outras informações importantes...")
+
+                if st.button("✅ CADASTRAR PET", key="btn_cadastrar_pet", use_container_width=True):
+                    if nome_pet.strip():
+                        with st.spinner(f"Cadastrando {nome_pet.strip()}..."):
+                            import time as _t
+                            _t.sleep(0.8)
+                            novo_pet = {
+                                "nome": nome_pet.strip(), "especie": especie_pet,
+                                "raca": raca_pet, "sexo": sexo_pet, "idade": idade_pet,
+                                "peso": peso_pet, "castrado": castrado_pet, "cor": cor_pet,
+                                "identificacao": identificacao_pet, "saude": saude_pet,
+                                "alergias": alergias_pet, "alimentacao": alimentacao_pet,
+                                "medicamentos": medicamentos_pet, "comportamento": comportamento_pet,
+                                "obs": obs_pet, "cadastrado_em": datetime.now().strftime("%d/%m/%Y")
+                            }
+                            if 'pets' not in st.session_state: st.session_state.pets = []
+                            st.session_state.pets.append(novo_pet)
+                            st.session_state.pet_ativo = len(st.session_state.pets) - 1
+                            st.session_state['pet_cadastrado_ok'] = True
+                            st.session_state['pet_cadastrado_nome'] = nome_pet.strip()
+                        st.rerun()
+                    else:
+                        st.warning("Digite o nome do pet.")
 
         # ══════════════════════════════════════════════
         # 🩺 SAÚDE
