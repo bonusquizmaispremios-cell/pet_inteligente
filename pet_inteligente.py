@@ -91,9 +91,14 @@ def get_pet_ativo():
     return pets[idx] if idx < len(pets) else pets[0]
 
 def carregar_json_sessao(dados):
+    # Chaves que NÃO devem ser restauradas (widgets ou controle de sessão)
+    bloqueadas = {'api_key','etapa','pet_cadastrado_ok','pet_cadastrado_nome'}
+    # Também bloqueamos qualquer chave que começa com prefixo de widget
+    prefixos_widget = ('cad_','btn_','sel_','ul_','dl_','_sub','_sm','_tab','_bsc')
     for k, v in dados.items():
-        if k not in ('api_key', 'etapa'):
-            st.session_state[k] = v
+        if k in bloqueadas: continue
+        if any(k.startswith(p) for p in prefixos_widget): continue
+        st.session_state[k] = v
 
 # ── DEFAULTS ──
 defaults = {
@@ -149,8 +154,8 @@ elif st.session_state.etapa == "App":
             _fupsv = st.file_uploader("📂 Carregar dados salvos:", type=["json"], key="ul_barra_sv_pet", label_visibility="collapsed")
             if _fupsv:
                 try:
-                    for _k2, _v2 in json.loads(_fupsv.read().decode()).items():
-                        if _k2 not in ('api_key','etapa'): st.session_state[_k2] = _v2
+                    _dados_car = json.loads(_fupsv.read().decode())
+                    carregar_json_sessao(_dados_car)
                     st.success("✅ Dados restaurados!"); st.rerun()
                 except: st.error("Arquivo inválido.")
 
