@@ -91,13 +91,22 @@ def get_pet_ativo():
     return pets[idx] if idx < len(pets) else pets[0]
 
 def carregar_json_sessao(dados):
-    # Chaves que NÃO devem ser restauradas (widgets ou controle de sessão)
+    # Chaves que NÃO devem ser restauradas
     bloqueadas = {'api_key','etapa','pet_cadastrado_ok','pet_cadastrado_nome'}
-    # Também bloqueamos qualquer chave que começa com prefixo de widget
-    prefixos_widget = ('cad_','btn_','sel_','ul_','dl_','_sub','_sm','_tab','_bsc')
+    # Prefixos de widgets dinâmicos (chaves geradas com f-string)
+    prefixos_widget = (
+        'cad_','btn_','sel_','ul_','dl_','_sub','_sm','_tab','_bsc',
+        'ativo_','rem_','sel_pet_','ev_','prof_','hig_','prev_',
+        'vac_','sint_','comp_','trad_','subs_','amb_','viag_','chat_',
+        'duvida_','emerg_','peso_','data_','obs_','tipo_','vet_','desc_',
+        'local_','prox_','alim','sit_emerg_','_sm_','_pr',
+    )
+    # Também bloqueia qualquer chave que termine com número (widget dinâmico)
+    import re as _re
     for k, v in dados.items():
         if k in bloqueadas: continue
         if any(k.startswith(p) for p in prefixos_widget): continue
+        if _re.match(r'.+_\d+$', k): continue  # ex: ativo_0, rem_1, sel_pet_2
         st.session_state[k] = v
 
 # ── DEFAULTS ──
