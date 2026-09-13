@@ -410,6 +410,7 @@ elif st.session_state.etapa == "App":
                     if duvida_alim.strip():
                         with st.spinner("Consultando..."):
                             resp = ia(duvida_alim, f"PERFIL DO PET: {perfil_pet_txt()}\n\nOriente sobre alimentação ESPECIFICAMENTE para {pet.get('especie','')}. A dieta varia muito entre espécies — adapte completamente.")
+                            if resp: st.session_state['res_a1_petint1'] = str(resp)
                         st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
                     else:
                         st.warning("Digite sua dúvida.")
@@ -478,6 +479,7 @@ elif st.session_state.etapa == "App":
                     if trad_pergunta.strip():
                         with st.spinner("Traduzindo..."):
                             resp = ia(trad_pergunta, f"PERFIL DO PET: {perfil_pet_txt()}\n\nExplique este comportamento de {pet.get('especie','')} de forma clara e detalhada. Considere causas naturais, instintivas e possíveis problemas.")
+                            if resp: st.session_state['res_c2_petint2'] = str(resp)
                         st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
                     else:
                         st.warning("Digite sua pergunta.")
@@ -637,6 +639,7 @@ elif st.session_state.etapa == "App":
                     with st.spinner("Respondendo..."):
                         perf = perfil_pet_txt() if pet else "Nenhum pet cadastrado."
                         resp = ia(msg_input, f"PERFIL DO PET ATIVO: {perf}", historico_msgs=hist_chat[:-1])
+                        if resp: st.session_state['res_chat_petint3'] = str(resp)
                     hist_chat.append({"role":"assistant","content": resp})
                     st.session_state.hist_chat = hist_chat
                     st.rerun()
@@ -686,6 +689,7 @@ elif st.session_state.etapa == "App":
                     if duvida_hig.strip():
                         with st.spinner("Consultando..."):
                             resp = ia(duvida_hig, f"PERFIL DO PET: {perfil_pet_txt()}\n\nOriente sobre higiene ESPECIFICAMENTE para {pet.get('especie','')}. As rotinas de higiene variam muito entre espécies.")
+                            if resp: st.session_state['res_h2_petint4'] = str(resp)
                         st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
                     else:
                         st.warning("Digite sua dúvida.")
@@ -741,6 +745,7 @@ elif st.session_state.etapa == "App":
                         if duvida_vac.strip():
                             with st.spinner("Consultando..."):
                                 resp = ia(duvida_vac, f"PERFIL DO PET: {perfil_pet_txt()}\n\nOriente sobre vacinação para esta espécie específica. Lembre que protocolos variam conforme espécie, local e estilo de vida. Sempre recomende orientação veterinária.")
+                                if resp: st.session_state['res_v3_petint5'] = str(resp)
                             st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
                         else:
                             st.warning("Digite sua dúvida.")
@@ -785,6 +790,7 @@ elif st.session_state.etapa == "App":
                         if duvida_prev.strip():
                             with st.spinner("Consultando..."):
                                 resp = ia(duvida_prev, f"PERFIL DO PET: {perfil_pet_txt()}\n\nOriente sobre controle preventivo de parasitas para esta espécie. Adapte as recomendações conforme o tipo de animal.")
+                                if resp: st.session_state['res_p2_petint6'] = str(resp)
                             st.markdown(f"<div class='card'>{resp}</div>", unsafe_allow_html=True)
                         else:
                             st.warning("Digite sua dúvida.")
